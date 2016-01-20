@@ -58,27 +58,29 @@ class CellRendererProgressWindow(Gtk.Window):
         hbox.add(resetB)
         self.add(box)
 
-        self.timeout_id = GObject.timeout_add(100, self.on_timeout, None)
 
         self.lock = threading.Lock()
         self.test_thread = None 
         self.count = 0
 
     def text_edited(self, widget, path, text):
-      print("TEXT", text)
-      self.liststore[path][0] = text
-      self.tests[path].url = text
+      self.liststore[int(path)][0] = text
+      self.liststore.tests[int(path)].url = text
 
 
     def on_inverted_toggled(self, button, path):
       self.liststore[path][2] = not self.liststore[path][2]
 
     def start_new_test_thread(self):
+      GObject.timeout_add(100, self.on_timeout, None)
       def run_tests():
         with self.lock:
           for l, t in zip(self.liststore, self.liststore.tests):
             if l[2]:
               t.test()
+          for l, t in zip(self.liststore, self.liststore.tests):
+            if l[2]:
+              print(t.results)
 
       if not self.test_thread:
         self.testB.set_sensitive(False)
@@ -96,16 +98,18 @@ class CellRendererProgressWindow(Gtk.Window):
         self.start_new_test_thread()
         self.count = 0
 
+      for l, t in zip(self.liststore, self.liststore.tests):
+        l[1] = t.progress
       if self.test_thread: 
         if not self.test_thread.is_alive():
           self.test_thread.join()
           self.test_thread = None
           self.testB.set_sensitive(True)
+          return False
       else:
         self.testB.set_sensitive(True)
+        return False
 
-      for l, t in zip(self.liststore, self.liststore.tests):
-        l[1] = t.progress
       return True
 
 GObject.threads_init()
