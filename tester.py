@@ -3,7 +3,7 @@ import datetime
 import os
 import re
 from urllib.parse import urlparse
-from subprocess import check_output
+from subprocess import check_output, CalledProcessError
 
 class Clock:
   def start(self):
@@ -36,17 +36,19 @@ class Result:
   def __init__(self, success, time, ping, size=0, duration=0):
     self.time = time
     self.success = success
+# size in bytes
     self.size = size
     self.ping = ping
+# duratino in micros
     self.duration = duration
-    self.speed = 0
+    self.speed = 0.0
 
   def recalculate(self):
-    self.speed = (self.size * 1000000 / self.duration)
+    self.speed = (self.size * 1000000 / self.duration) / (1024 ** 2)
 
   def __repr__(self):
     self.recalculate()
-    return "Result(%s, %s, %d, %f, %d, %d)" % \
+    return "Result(%s, %s, %d, %f, %d, %f)" % \
              ( repr(self.time)
              , repr(self.success)
              , self.size
@@ -69,11 +71,9 @@ class Test:
 
   def dl_test(self):
     def report(blocknr, blocksize, size):
-      self.progress = 100.0*(blocknr * blocksize)/size
+      self.progress = 10 + (90.0*(blocknr * blocksize)/size)
       self.size = size
-      print(self.progress)
 
-    self.progress = 0
     c = Clock()
     c.start()
     req.urlretrieve(self.url, reporthook=report)
@@ -82,17 +82,13 @@ class Test:
     return (self.size, c.delta(), c.before)
 
   def test(self):
+    self.progress = 5.0
     (success, ping, time) = self.ping_test()
     res = Result(success, time, ping)
+    self.progress = 10.0
     if success:
       (size, duration, time) = self.dl_test()
       res.size = size
       res.duration = duration
+    self.progress = 100.0
     self.results.append(res)
-
-
-if True:
-  # t = Test("http://www.python.org/")
-  t = Test("http://ipv4.download.thinkbroadband.com/20MB.zip")
-  t.test()
-  print(t.results)
