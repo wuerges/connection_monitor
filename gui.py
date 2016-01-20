@@ -24,10 +24,14 @@ class CellRendererProgressWindow(Gtk.Window):
         self.liststore = TestStore()
         for i in range(10):
           self.liststore.append(["http://mirror.internode.on.net/pub/test/1meg.test", 0.0, False])
+          #self.liststore.append(["", 0.0, False])
 
         treeview = Gtk.TreeView(model=self.liststore)
 
         renderer_text = Gtk.CellRendererText()
+        renderer_text.set_property("editable", True)
+        renderer_text.connect("edited", self.text_edited)
+
         column_text = Gtk.TreeViewColumn("URL", renderer_text, text=0)
         treeview.append_column(column_text)
 
@@ -58,24 +62,40 @@ class CellRendererProgressWindow(Gtk.Window):
 
         self.lock = threading.Lock()
         self.test_thread = None 
+        self.count = 0
+
+    def text_edited(self, widget, path, text):
+      print("TEXT", text)
+      self.liststore[path][0] = text
+      self.tests[path].url = text
+
 
     def on_inverted_toggled(self, button, path):
       self.liststore[path][2] = not self.liststore[path][2]
 
-    def test_now(self, button):
-      button.set_sensitive(False)
-
+    def start_new_test_thread(self):
       def run_tests():
-        for l, t in zip(self.liststore, self.liststore.tests):
-          if l[2]:
-            t.test()
+        with self.lock:
+          for l, t in zip(self.liststore, self.liststore.tests):
+            if l[2]:
+              t.test()
 
-      self.test_thread = threading.Thread(target=run_tests)
-      self.test_thread.start()
+      if not self.test_thread:
+        self.testB.set_sensitive(False)
+        self.test_thread = threading.Thread(target=run_tests)
+        self.test_thread.start()
+
+    def test_now(self, button):
+      self.start_new_test_thread()
 
       return True
 
     def on_timeout(self, user_data):
+      self.count += 1
+      if self.count > (3600 * 10):
+        self.start_new_test_thread()
+        self.count = 0
+
       if self.test_thread: 
         if not self.test_thread.is_alive():
           self.test_thread.join()
