@@ -4,6 +4,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GObject
 import threading
 import time
+import csv
 
 
 class TestStore(Gtk.ListStore):
@@ -98,11 +99,13 @@ class CellRendererProgressWindow(Gtk.Window):
             (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
             Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
         dialog.set_current_name("Untitled.csv")
-
+        
+        
         response = dialog.run()
         if response == Gtk.ResponseType.OK:
             print("Open clicked")
             print("File selected: " + dialog.get_filename())
+            self.write_csv(dialog.get_filename())
         elif response == Gtk.ResponseType.CANCEL:
             print("Cancel clicked")
 
