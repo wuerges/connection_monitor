@@ -10,17 +10,6 @@ for as long as the program is running. The results can be read by
 any spreadsheet software such as Excel, Libreoffice or even google drive.
 This way you can examine all your data on your own (and then shove it in the face of your ISP).
 
----------------------
-
-Monitor de conexão
-======================
-
-O objetivo deste projeto é construir uma ferramenta simples pra monitorar a sua conexão de internet.
-O programa monitora o ***ping*** e o ***throughtput*** da sua conexão, ou, em outras palavras, o seu ***lag*** e a 
-sua ***velocidade de download***.
-
-----
-
 How to use 
 ====================
 
@@ -29,7 +18,15 @@ That's it. Once per hour, the program will do a latency (ping) test and try to d
 
 Keep in mind that if you choose a file that is too small, the download speed will not be very accurate.
 
------
+----
+
+Monitor de conexão
+======================
+
+O objetivo deste projeto é construir uma ferramenta simples pra monitorar a sua conexão de internet.
+O programa monitora o ***ping*** e o ***throughtput*** da sua conexão, ou, em outras palavras, o seu ***lag*** e a 
+sua ***velocidade de download***.
+
 
 Como usar
 ==============
