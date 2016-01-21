@@ -187,11 +187,12 @@ class CellRendererProgressWindow(Gtk.Window):
        
         return True
 
-GObject.threads_init()
-win = CellRendererProgressWindow()
-win.connect("delete-event", Gtk.main_quit)
-win.show_all()
-Gtk.main()
-if win.test_thread:
-    win.test_thread.join(0.0)
+def main():
+    GObject.threads_init()
+    win = CellRendererProgressWindow()
+    win.connect("delete-event", Gtk.main_quit)
+    win.show_all()
+    Gtk.main()
+    if win.test_thread:
+        win.test_thread.join(0.0)
 
