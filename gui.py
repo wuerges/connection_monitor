@@ -10,21 +10,31 @@ class TestStore(Gtk.ListStore):
   def __init__(self):
     Gtk.ListStore.__init__(self, str, int, bool)
     self.tests = []
+  
   def append(self, v):
-    self.tests.append(tester.Test(v[0]))
+    t = tester.Test(v[0])
+    self.tests.append(t)
     return Gtk.ListStore.append(self, v)
 
+  def modify(self, path, text):
+    self[int(path)][0] = text
+    self.tests[int(path)].url = text
+
+  def reset(self):
+    self.tests = []
+    self.clear()
+    for i in range(10):
+      #self.liststore.append(["http://mirror.internode.on.net/pub/test/1meg.test", 0.0, False])
+      self.append(["                                                                          ", 0.0, False])
 
 class CellRendererProgressWindow(Gtk.Window):
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="CellRendererProgress Example")
+        Gtk.Window.__init__(self, title="Connection Monitor")
         self.set_default_size(400, 300)
 
         self.liststore = TestStore()
-        for i in range(10):
-          self.liststore.append(["http://mirror.internode.on.net/pub/test/1meg.test", 0.0, False])
-          #self.liststore.append(["", 0.0, False])
+        self.liststore.reset()
 
         treeview = Gtk.TreeView(model=self.liststore)
 
@@ -51,27 +61,59 @@ class CellRendererProgressWindow(Gtk.Window):
 
         self.testB  = Gtk.Button.new_with_label("Test Now!")
         self.testB.connect("clicked", self.test_now)
+
         resetB = Gtk.Button.new_with_label("Reset")
+        resetB.connect("clicked", self.reset_now)
+        
+        resultB = Gtk.Button.new_with_label("Save Results")
+        resultB.connect("clicked", self.show_results_now)
+
+
         box.add(treeview)
         box.add(hbox)
         hbox.add(self.testB)
         hbox.add(resetB)
+        hbox.add(resultB)
         self.add(box)
-
 
         self.lock = threading.Lock()
         self.test_thread = None 
-        self.count = 0
+        
+        GObject.timeout_add(3600 * 1000, self.hourly_timeout, None)
+
+    def show_results_now(self, button):
+      dialog = Gtk.FileChooserDialog("Please choose a file", self,
+        Gtk.FileChooserAction.SAVE,
+        (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+        Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+      dialog.set_current_name("Untitled.csv")
+
+      response = dialog.run()
+      if response == Gtk.ResponseType.OK:
+        print("Open clicked")
+        print("File selected: " + dialog.get_filename())
+      elif response == Gtk.ResponseType.CANCEL:
+        print("Cancel clicked")
+
+      dialog.destroy()
+
+    def reset_now(self, button):
+      self.liststore.reset()
+      if self.test_thread:
+        self.test_thread.join(0.0)
+      self.update_progress_bars()
 
     def text_edited(self, widget, path, text):
-      self.liststore[int(path)][0] = text
-      self.liststore.tests[int(path)].url = text
-
+      self.liststore.modify(path, text)
 
     def on_inverted_toggled(self, button, path):
       self.liststore[path][2] = not self.liststore[path][2]
 
     def start_new_test_thread(self):
+      """
+      performs the tests
+      and setups the update bars timeout
+      """
       GObject.timeout_add(100, self.on_timeout, None)
       def run_tests():
         with self.lock:
@@ -83,25 +125,32 @@ class CellRendererProgressWindow(Gtk.Window):
               print(t.results)
 
       if not self.test_thread:
-        self.testB.set_sensitive(False)
         self.test_thread = threading.Thread(target=run_tests)
         self.test_thread.start()
 
     def test_now(self, button):
+      self.testB.set_sensitive(False)
       self.start_new_test_thread()
-
       return True
 
-    def on_timeout(self, user_data):
-      self.count += 1
-      if self.count > (3600 * 10):
-        self.start_new_test_thread()
-        self.count = 0
-
+    def update_progress_bars(self):
       for l, t in zip(self.liststore, self.liststore.tests):
         l[1] = t.progress
+
+    def hourly_timeout(self, user_data):
+      self.start_new_test_thread()
+
+    def on_timeout(self, user_data):
+      """ 
+      Updates progress bars and makes the button
+      sensitive once there is not a thread running anymore
+      """
+      self.update_progress_bars()
+
       if self.test_thread: 
-        if not self.test_thread.is_alive():
+        if self.test_thread.is_alive():
+          self.testB.set_sensitive(False)
+        else:
           self.test_thread.join()
           self.test_thread = None
           self.testB.set_sensitive(True)
@@ -118,4 +167,5 @@ win.connect("delete-event", Gtk.main_quit)
 win.show_all()
 Gtk.main()
 if win.test_thread:
-  win.test_thread.join(1.0)
+  win.test_thread.join(0.0)
+

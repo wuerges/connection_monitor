@@ -18,6 +18,9 @@ class Clock:
 
 # purpose of this function is to perform a simple ping
 def doping(host):
+  if not host:
+    return (False, 0)
+
   import os, platform
   if platform.system().lower() == "windows":
     raise "Not implemented for windows"
@@ -44,7 +47,10 @@ class Result:
     self.speed = 0.0
 
   def recalculate(self):
-    self.speed = (self.size * 1000000 / self.duration) / (1024 ** 2)
+    if self.duration > 0:
+      self.speed = (self.size * 1000000 / self.duration) / (1024 ** 2)
+    else:
+      self.speed = 0
 
   def __repr__(self):
     self.recalculate()
