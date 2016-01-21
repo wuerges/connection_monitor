@@ -1,5 +1,5 @@
 import gi
-import tester
+from pycomon.tester import Test
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GObject
 import threading
@@ -13,7 +13,7 @@ class TestStore(Gtk.ListStore):
         self.tests = []
   
     def append(self, v):
-        t = tester.Test(v[0])
+        t = Test(v[0])
         self.tests.append(t)
         return Gtk.ListStore.append(self, v)
 
