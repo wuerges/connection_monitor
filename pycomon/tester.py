@@ -23,8 +23,12 @@ def doping(host):
 
     import os, platform
     if platform.system().lower() == "windows":
-        raise "Not implemented for windows"
-        # r = os.system("ping -n 10 " + host)
+        try:
+            o = check_output(["ping", "-n", "10", host]).decode("utf-8")
+            res = re.findall(r"=(\d+)ms", o)
+            return (True, sum(map(int, res)) / len(res))
+        except CalledProcessError:
+            return (False, 0)
     else:
         try:
             o = check_output(["ping", "-c", "10", host]).decode("utf-8")
