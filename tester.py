@@ -33,7 +33,8 @@ def doping(host):
 # Purpose of this class is to perform tests and store results
 
 class Result:
-  def __init__(self, success, time, ping, size=0, duration=0):
+  def __init__(self, url, success, time, ping, size=0, duration=0):
+    self.url = url
     self.time = time
     self.success = success
 # size in bytes
@@ -43,13 +44,20 @@ class Result:
     self.duration = duration
     self.speed = 0.0
 
+  def result_line(self):
+    self.recalculate()
+    return [self.url, str(self.time), self.success, self.size, self.ping, self.duration, self.speed]
+
   def recalculate(self):
+    if self.size < 0:
+      self.size = 0
     self.speed = (self.size * 1000000 / self.duration) / (1024 ** 2)
 
   def __repr__(self):
     self.recalculate()
-    return "Result(%s, %s, %d, %f, %d, %f)" % \
-             ( repr(self.time)
+    return "Result(%s, %s, %s, %d, %f, %d, %f)" % \
+             ( self.url
+             , repr(self.time)
              , repr(self.success)
              , self.size
              , self.ping
@@ -62,6 +70,8 @@ class Test:
     self.progress = 0
     self.size = 0
     self.results = []
+  def result_lines(self):
+    return (r.result_line() for r in self.results)
 
   def ping_test(self):
     c = Clock()
@@ -84,7 +94,7 @@ class Test:
   def test(self):
     self.progress = 5.0
     (success, ping, time) = self.ping_test()
-    res = Result(success, time, ping)
+    res = Result(self.url, success, time, ping)
     self.progress = 10.0
     if success:
       (size, duration, time) = self.dl_test()

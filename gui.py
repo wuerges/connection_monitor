@@ -14,6 +14,19 @@ class TestStore(Gtk.ListStore):
     self.tests.append(tester.Test(v[0]))
     return Gtk.ListStore.append(self, v)
 
+  def save_state(self, fn):
+    with open(fn, 'wb') as f:
+      pickle.dump((self.tests, list(self)), f)
+
+  def load_state(self, fn):
+    with open(fn, 'rb') as f:
+      (self.tests, lself) = pickle.load(self.tests)
+      self.clear()
+      for r in lself:
+        Gtk.ListStore.append(self, r)
+
+
+
 
 class CellRendererProgressWindow(Gtk.Window):
 
@@ -89,6 +102,18 @@ class CellRendererProgressWindow(Gtk.Window):
       self.start_new_test_thread()
 
       return True
+
+    def write_csv(self, filename):
+      with open(filename, 'w') as f:
+        w = csv.writer(f)
+        for t in self.liststore.tests:
+          w.writerows(t.result_lines())
+
+    def save_state(self, filename):
+      self.liststore.save_state(filename)
+
+    def load_state(self, filename):
+      self.liststore.load_state(filename)
 
     def on_timeout(self, user_data):
       self.count += 1
