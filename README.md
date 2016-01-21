@@ -1,4 +1,4 @@
-pycomon: a simple connection monitor, using python
+pycomon: A simple internet connection monitor
 =======================
 
 This project aims to build a simple connection monitor than
@@ -32,7 +32,7 @@ It should be the same on windows.
 
 ----
 
-pycomon: Um monitor de conexão simples, usando python
+pycomon: Um monitor de conexão simples
 ======================
 
 O objetivo deste projeto é construir uma ferramenta simples pra monitorar a sua conexão de internet.
