@@ -27,6 +27,17 @@ class TestStore(Gtk.ListStore):
       #self.liststore.append(["http://mirror.internode.on.net/pub/test/1meg.test", 0.0, False])
       self.append(["                                                                          ", 0.0, False])
 
+  def save_state(self, fn):
+    with open(fn, 'wb') as f:
+      pickle.dump((self.tests, list(self)), f)
+
+  def load_state(self, fn):
+    with open(fn, 'rb') as f:
+      (self.tests, lself) = pickle.load(self.tests)
+      self.clear()
+      for r in lself:
+        Gtk.ListStore.append(self, r)
+
 class CellRendererProgressWindow(Gtk.Window):
 
     def __init__(self):
@@ -139,6 +150,18 @@ class CellRendererProgressWindow(Gtk.Window):
 
     def hourly_timeout(self, user_data):
       self.start_new_test_thread()
+
+    def write_csv(self, filename):
+      with open(filename, 'w') as f:
+        w = csv.writer(f)
+        for t in self.liststore.tests:
+          w.writerows(t.result_lines())
+
+    def save_state(self, filename):
+      self.liststore.save_state(filename)
+
+    def load_state(self, filename):
+      self.liststore.load_state(filename)
 
     def on_timeout(self, user_data):
       """ 
