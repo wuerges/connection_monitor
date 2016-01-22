@@ -39,6 +39,27 @@ class TestStore(Gtk.ListStore):
             for r in lself:
                 Gtk.ListStore.append(self, r)
 
+class StatusIconManager:
+    def __init__(self, win):
+        self.win = win
+        self.active = True
+
+        self.icon = Gtk.StatusIcon()
+        self.icon.set_from_file("imgs/icon.png")
+        self.icon.set_title("Connection Monitor")
+        self.icon.set_title("connectionmonitor")
+        self.icon.set_tooltip_text("pycomon")
+        self.icon.set_has_tooltip(True)
+        self.icon.set_visible(True)
+        self.icon.connect("activate", self.status_icon_activate )
+
+    def status_icon_activate(self, icon):
+        if self.active:
+            self.win.hide()
+        else:
+            self.win.show()
+        self.active = not self.active
+
 class CellRendererProgressWindow(Gtk.Window):
 
     def __init__(self):
@@ -79,7 +100,6 @@ class CellRendererProgressWindow(Gtk.Window):
         
         resultB = Gtk.Button.new_with_label("Save Results")
         resultB.connect("clicked", self.show_results_now)
-
 
         box.add(treeview)
         box.add(hbox)
@@ -190,6 +210,7 @@ class CellRendererProgressWindow(Gtk.Window):
 def main():
     GObject.threads_init()
     win = CellRendererProgressWindow()
+    icon = StatusIconManager(win)
     win.connect("delete-event", Gtk.main_quit)
     win.show_all()
     Gtk.main()
