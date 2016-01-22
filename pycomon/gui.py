@@ -45,7 +45,12 @@ class StatusIconManager:
         self.active = True
 
         self.icon = Gtk.StatusIcon()
-        self.icon.set_from_file("imgs/icon.png")
+
+        import os.path
+        icon_location = os.path.join(os.path.dirname(__file__), '..')
+
+        self.icon.set_from_file(icon_location)
+
         self.icon.set_title("Connection Monitor")
         self.icon.set_title("connectionmonitor")
         self.icon.set_tooltip_text("pycomon")
