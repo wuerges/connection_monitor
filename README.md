@@ -1,4 +1,4 @@
-Connection Monitor
+pycomon: A simple internet connection monitor
 =======================
 
 This project aims to build a simple connection monitor than
@@ -18,9 +18,21 @@ That's it. Once per hour, the program will do a latency (ping) test and try to d
 
 Keep in mind that if you choose a file that is too small, the download speed will not be very accurate.
 
+Installing
+====================
+
+If you are on linux, just this will do the job:
+```bash
+sudo python3 setup.py install
+```
+
+After this, the program will be avaiable as ***pycomon*** in the commandline.
+
+It should be the same on windows. 
+
 ----
 
-Monitor de conexão
+pycomon: Um monitor de conexão simples
 ======================
 
 O objetivo deste projeto é construir uma ferramenta simples pra monitorar a sua conexão de internet.
@@ -35,3 +47,15 @@ Como usar
 É isso. Uma vez por hora o programa tentará fazer um teste de latência (ping) e tentará baixar o arquivo do link.
 
 Tenha em mente que se você escolher um arquivo muito pequeno, a velocidade de download não sera muito precisa.
+
+Instalando
+====================
+
+Se voce está no linux, isso já faz o trabalho:
+```bash
+sudo python3 setup.py install
+```
+
+Depois de rodar o comando acima, o programa estará disponível como ***pycomon*** na linha de comando.
+
+Deve ser o mesmo no windows.
