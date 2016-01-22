@@ -47,7 +47,7 @@ class StatusIconManager:
         self.icon = Gtk.StatusIcon()
 
         import os.path
-        icon_location = os.path.join(os.path.dirname(__file__), '..')
+        icon_location = os.path.join(os.path.dirname(__file__), '..', 'imgs', 'icon.png')
 
         self.icon.set_from_file(icon_location)
 
