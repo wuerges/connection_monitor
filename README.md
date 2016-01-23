@@ -18,12 +18,17 @@ That's it. Once per hour, the program will do a latency (ping) test and try to d
 
 Keep in mind that if you choose a file that is too small, the download speed will not be very accurate.
 
+Requirements
+====================
+
+Python 3. That's it. Everything else comes with Python.
+
 Installing
 ====================
 
 If you are on linux, just this will do the job:
 ```bash
-sudo pip install pycomon
+sudo pip3 install pycomon
 ```
 
 After this, the program will be avaiable as ***pycomon*** in the commandline.
@@ -47,6 +52,11 @@ Como usar
 É isso. Uma vez por hora o programa tentará fazer um teste de latência (ping) e tentará baixar o arquivo do link.
 
 Tenha em mente que se você escolher um arquivo muito pequeno, a velocidade de download não sera muito precisa.
+
+Requisitos
+====================
+
+Python 3. Só. Todo o resto vem com o Python.
 
 Instalando
 ====================
