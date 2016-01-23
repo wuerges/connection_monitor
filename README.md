@@ -23,7 +23,7 @@ Installing
 
 If you are on linux, just this will do the job:
 ```bash
-sudo python3 setup.py install
+sudo pip install pycomon
 ```
 
 After this, the program will be avaiable as ***pycomon*** in the commandline.
@@ -53,7 +53,7 @@ Instalando
 
 Se voce está no linux, isso já faz o trabalho:
 ```bash
-sudo python3 setup.py install
+sudo pip install pycomon
 ```
 
 Depois de rodar o comando acima, o programa estará disponível como ***pycomon*** na linha de comando.
