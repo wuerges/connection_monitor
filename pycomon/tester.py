@@ -82,10 +82,13 @@ class Test:
         self.progress = 0
         self.size = 0
         self.results = []
-        self.enable = False
+        self.enabled = False
 
     def result_lines(self):
         return (r.result_line() for r in self.results)
+
+    def reset(self):
+        self.results = []
 
     def ping_test(self):
         c = Clock()
@@ -120,43 +123,57 @@ class Test:
 class TestGroup:
     def __init__(self):
         self.running = False
-        self.ordering = []
-        self.test_dict = {}
         self.thread = None
+        self.tests = [Test("") for x in range(10)]
 
-    def reload(self, data):
-        new_dict = {}
-        self.ordering.clear()
-        for url, p, e in data:
-            self.ordering.add(url)
+    def reset(self):
+        for t in self.tests:
+            t.reset()
 
-            if url in self.test_dict:
-                new_dict[url] = self.test_dict[url]
-            else:
-                new_dict[url] = Test(url)
+    def modify(self, path, new_url, enabled):
+        if self.tests[path].url == new_url:
+            return
+        else:
+            t = Test(new_url)
+            t.enabled = enabled
+            self.tests[path] = t
 
-            new_dict[url].enable = e
-        self.test_dict = new_dict
+    #def reload(self, data):
+    #    new_tests = []
+    #    for url, p, e in data:
+    #        t = Test(url)
+    #        t.enabled = e
+    #        new_tests.append(t)
+#
+#        self.tests = new_tests
 
     def items(self):
-        for url in self.ordering:
-            p = self.test_dict[url].progress
-            e = self.test_dict[url].enable
-            yield url, p, e
-
+        for t in self.tests:
+            yield t.url, t.progress, t.enabled
 
     def start(self):
         def run_tests():
-            for t in self.test_dict.values():
+            for t in self.tests:
                 if t.enabled:
                     t.test()
-            self.thread = None
 
+        if not self.is_running():
+            self.thread = threading.Thread(target=run_tests)
+            self.thread.start()
+
+    def is_running(self):
         if self.thread:
-            return
+            return self.thread.is_alive()
         else:
-            self.thread = threading.Thread(target=run_tests())
+            return False
 
     def kill(self):
         if self.thread:
             self.thread.join(0.0)
+
+    def write_csv(self, filename):
+        with open(filename, 'w') as f:
+            w = csv.writer(f)
+            w.writerows(["url", "time", "success", "size", "ping", "duration", "speed"])
+            for t in self.liststore.tests:
+                w.writerows(t.result_lines())
