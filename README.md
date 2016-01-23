@@ -63,7 +63,7 @@ Instalando
 
 Se voce está no linux, isso já faz o trabalho:
 ```bash
-sudo pip install pycomon
+sudo pip3 install pycomon
 ```
 
 Depois de rodar o comando acima, o programa estará disponível como ***pycomon*** na linha de comando.
