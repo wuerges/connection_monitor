@@ -4,6 +4,7 @@ import os
 import re
 from urllib.parse import urlparse
 from subprocess import check_output, CalledProcessError
+import threading
 
 class Clock:
     def start(self):
@@ -81,6 +82,7 @@ class Test:
         self.progress = 0
         self.size = 0
         self.results = []
+        self.enable = False
 
     def result_lines(self):
         return (r.result_line() for r in self.results)
@@ -114,3 +116,47 @@ class Test:
             res.duration = duration
         self.progress = 100.0
         self.results.append(res)
+
+class TestGroup:
+    def __init__(self):
+        self.running = False
+        self.ordering = []
+        self.test_dict = {}
+        self.thread = None
+
+    def reload(self, data):
+        new_dict = {}
+        self.ordering.clear()
+        for url, p, e in data:
+            self.ordering.add(url)
+
+            if url in self.test_dict:
+                new_dict[url] = self.test_dict[url]
+            else:
+                new_dict[url] = Test(url)
+
+            new_dict[url].enable = e
+        self.test_dict = new_dict
+
+    def items(self):
+        for url in self.ordering:
+            p = self.test_dict[url].progress
+            e = self.test_dict[url].enable
+            yield url, p, e
+
+
+    def start(self):
+        def run_tests():
+            for t in self.test_dict.values():
+                if t.enabled:
+                    t.test()
+            self.thread = None
+
+        if self.thread:
+            return
+        else:
+            self.thread = threading.Thread(target=run_tests())
+
+    def kill(self):
+        if self.thread:
+            self.thread.join(0.0)
