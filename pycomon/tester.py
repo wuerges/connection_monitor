@@ -2,6 +2,7 @@ import urllib.request as req
 import datetime
 import os
 import re
+import csv
 from urllib.parse import urlparse
 from subprocess import check_output, CalledProcessError
 import threading
@@ -175,5 +176,5 @@ class TestGroup:
         with open(filename, 'w') as f:
             w = csv.writer(f)
             w.writerows(["url", "time", "success", "size", "ping", "duration", "speed"])
-            for t in self.liststore.tests:
+            for t in self.tests:
                 w.writerows(t.result_lines())

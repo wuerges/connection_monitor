@@ -2,9 +2,6 @@ import gi
 from pycomon.tester import TestGroup
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GObject
-import threading
-import time
-import csv
 
 
 class TestStore(Gtk.ListStore):
@@ -73,6 +70,7 @@ class CellRendererProgressWindow(Gtk.Window):
         renderer_text.connect("edited", self.text_edited)
 
         column_text = Gtk.TreeViewColumn("URL", renderer_text, text=0)
+        column_text.set_min_width(350)
         treeview.append_column(column_text)
 
         renderer_progress = Gtk.CellRendererProgress()
@@ -145,6 +143,7 @@ class CellRendererProgressWindow(Gtk.Window):
 
     def hourly_timeout(self, user_data):
         self.test_now(None)
+        return True
 
     def on_timeout(self, user_data):
         """ 
