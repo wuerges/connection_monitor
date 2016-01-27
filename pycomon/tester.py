@@ -175,6 +175,6 @@ class TestGroup:
     def write_csv(self, filename):
         with open(filename, 'w') as f:
             w = csv.writer(f)
-            w.writerows(["url", "time", "success", "size", "ping", "duration", "speed"])
+            w.writerow(["url", "time", "success", "size", "ping", "duration", "speed"])
             for t in self.tests:
                 w.writerows(t.result_lines())
